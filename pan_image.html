@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Panning</title>
+    <style>
+        #container {
+            width: 1500px;
+            height: 1500px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #000;
+        }
+
+        #image {
+            position: absolute;
+            cursor: move;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1920px-Image_created_with_a_mobile_phone.png" alt="Pan Image">
+    </div>
+
+    <script>
+        const image = document.getElementById('image');
+        let isDragging = false;
+        let startX, startY, offsetX, offsetY;
+
+        image.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            offsetX = image.offsetLeft;
+            offsetY = image.offsetTop;
+        });
+
+        image.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            image.style.left = `${offsetX + dx}px`;
+            image.style.top = `${offsetY + dy}px`;
+        });
+
+        image.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        image.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
