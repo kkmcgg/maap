@@ -27,5 +27,37 @@ const viewer = new Cesium.Viewer('cesiumContainer', {
   creditContainer: document.createElement('div'),
 });
 ```
+2. [Make a smooth double click to zoom to 10km](https://sandcastle.cesium.com/#c=nVRRT9swEP4rVl+aSpED7A0K2ihFVCsCrYynSMi1L6k1x45sJyib+O87J2lIC3tZpEjx3X3f3X13DjfaeVJLeAVLLomGV7IAJ6uCPre2aMrb48Joz6QGO43Jn1QTsmUO1qwB+yj5L7DnJGPKQRxcORhuxKFtZwq4rrw3emx1HDTcY+xHEs1qmTMvjb4DVX6EvvtX2IGtePh0Ky29ZEo1z9LJrYIxgmlZtICx0csCFPY1tnELQvqh43MiDK8K0J6ih3lYKginaCpkPZ0h5G12kepUJwlZtAGYikCNIWTHtFCobGYs8TsgU2EqLItwhQ1PuyCaat5OYR98MIYN5gS9KRmHZYi+64KibmSUM10zF/L3aOrAr3RZ+W+tIlFW6e6jMHVb9qybX5fSsgbTDVwFWEZz8GEcP1gzYGhpnAwsIdEe+2qsEo+9452lnSnNldkCLZEnwhzxgbMjCa/Mor5NARlqLaID0llf6z4jZ9ab3LJyJ/kocU+xGHlpZk0RDOhi+oj1YsypjM6lrwS8E90zv6Pe3ECO0rvos6x0gB2x4YL9B1mP6tYosOEq3aqmXZluKsSb7hQWBwSWzdtdpl384QQz1TyZqJeOEAHOS92v/kisVpsvrVT78oa24qGVmJye4DOLQ1Eb8ISpvkcs6fQkRh8pwIN1Q77K9snOBlCmZL7zgytgz4gDVE30uLdOyTe8TvG/lv+pKYGul7dPLzcPP6/Xy5fFerX4PruYxJO5842Cq30NX2VRGutJZVVEaeKhKLEhcMm2Qv3wJju3n9w8GUPneKmJFJfp5OjHl05QfOYcerJKqY38Denkap5g/AeoMkxInT/UYBVrQtju9GrdGSml8wSPnyO9MWrL7BHzXw)
+![image](https://github.com/kevinkmcguigan/maap/assets/36888812/9849d721-7b42-4e9c-b51f-2d0c2c91539f)
 
-3. 
+
+```const viewer = new Cesium.Viewer('cesiumContainer', {
+  baseLayerPicker: false,
+  geocoder: false,
+  homeButton: false,
+  sceneModePicker: false,
+  navigationHelpButton: false,
+  navigationInstructionsInitiallyVisible: false,
+  animation: false,
+  timeline: false,
+  creditContainer: document.createElement('div'),
+});
+
+// Create an event handler for the 'double click' event.
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+handler.setInputAction(function(movement) {
+  const ray = viewer.camera.getPickRay(movement.position);
+  const worldPosition = viewer.scene.globe.pick(ray, viewer.scene);
+  
+  if(Cesium.defined(worldPosition)) {
+    const cartographicPosition = Cesium.Cartographic.fromCartesian(worldPosition);
+    const longitude = Cesium.Math.toDegrees(cartographicPosition.longitude);
+    const latitude = Cesium.Math.toDegrees(cartographicPosition.latitude);
+
+    // Fly the camera to the clicked location.
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 10000), // Set altitude to 10,000 meters
+      duration: 2, // Set flight duration to 2 seconds
+    });
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);```
