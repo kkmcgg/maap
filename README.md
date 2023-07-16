@@ -60,4 +60,84 @@ handler.setInputAction(function(movement) {
       duration: 2, // Set flight duration to 2 seconds
     });
   }
-}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);```
+}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+```
+
+3. [Make it rotate and pan smoothy with arrow keys](https://sandcastle.cesium.com/#c=rVZbb9s2FP4rrB9qGRVku3ur3WCpkyHGXLSIk77MQ0FLRxJXihRIyp5b+L/vkLpYku0tKBbAiHgu37l9PFIohTZkx2APirwnAvZkAZoVWfDFybxh6I4LKQxlAtTQJz82gpAt1bCiB1CfWfgN1DsSU67Bt6oEZCijriyVGXwojJGiLdUhCPiItucggu5YQg2T4gF4fu560i+xAlWE9lEvBTOMcn74wjTbcmh7UMEy59AWGpYBx7raslBBxExT8TsSybDIQJgANdTAPQd78oYR2w1H6HIczTZiI0LXy5SKiPebuUZPEOuchnC/Q9+H0sgrGx+EVOyotiiVd6DBLEVemFtXlxcXonzI5M4FH5VTKEMqesBwDVYGigYJGNvUR3pofIJcamZRbKDady8Vjz5XihOKm0yQcLmFIEccD2P4HWUJYn8s9qoyI4ixY5HXAR1VudYRQ6qMTBTNUxa2AlcQi5Y2iJXMrABVVPRQZ21MLkXCTBHBCegjNWlg5B0k2HrtXYoaNG49NKTJT4BVXiUZLFp3IjE/PEmvagUhEWjDREXIVvGu1l9c6XW4Jk2/Sc0n0wn+jfwGrlAV1ttKdiyLOiI//Ws8fDrkEKzuf3v6evfp+cPq/utitVz8XlbAAZklDRJ+KQyoHeWzUrgDZVhI+ToHiLBHk2AymVa6VCr23d6ci9pvcNAo+nF0AZprRaPIZbNi2iCzcOmgYST3ApdNw3zYnWhvcf5wggAf/0RI3ABQ9Z3FxHvVTbxhYFeMfu6elafTJWvMT5S1E3wAlqTm7KbVt6rD3NTZzrowGf277oojFJeJ14Eel1OdkDdkOqpOs/GY3EZ/FehvUqYJZloAiaUi2mFxljFTM46cDccFypjwuoo3bi6Tqd8kNWqSPZ9hA9JXXYapgewk7KiCW6Xk/g4Hip0lWM96T/Mc3YdO8ZwPyZ6ZtDpau2EN0b9E5QCfc697MR9phLdGd4scnUo6XkvqOb+YksuhnRTm+O8pWY//K6lHS4YWCS9HdFZXQvbm9JKgK4j/O6Y1+pmQ7p9P3k5OO2n0gh1Q5C/fAO793Xon4RJoj5m8fk1edcnYE7l+9mSdpoQcqGq2RW/DzK4smEJUL8XK4PLyJJaCj4DbCC85lDdblw7XN+qpjwN/MNfmwOGm7vmvLMulMqRQ3AuCsYEsx1cH6PG2wC8t/JLRuk55Pm67zvGjhrDo/WbQ+/DbDLABVGvUxAXna/YdNoOb+Rjtz1y5RFKI5BMWy+nBmqXTm1UpDIJgPsbjZU8jJd9S1UP+Bw)
+(Fullscreen only)
+![image](https://github.com/kevinkmcguigan/maap/assets/36888812/daebae11-c944-4d3a-9a9e-ab286947cf44)
+```const viewer = new Cesium.Viewer('cesiumContainer', {
+  baseLayerPicker: false,
+  geocoder: false,
+  homeButton: false,
+  sceneModePicker: false,
+  navigationHelpButton: false,
+  navigationInstructionsInitiallyVisible: false,
+  animation: false,
+  timeline: false,
+  creditContainer: document.createElement('div'),
+});
+
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+handler.setInputAction(function(movement) {
+  const ray = viewer.camera.getPickRay(movement.position);
+  const worldPosition = viewer.scene.globe.pick(ray, viewer.scene);
+  
+  if(Cesium.defined(worldPosition)) {
+    const cartographicPosition = Cesium.Cartographic.fromCartesian(worldPosition);
+    const longitude = Cesium.Math.toDegrees(cartographicPosition.longitude);
+    const latitude = Cesium.Math.toDegrees(cartographicPosition.latitude);
+
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 10000),
+      duration: 2,
+    });
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+let rotateInterval;
+let verticalSpeed = 0.001;
+let horizontalSpeed = 0.001;
+let keys = {};
+
+document.addEventListener('keydown', function(event) {
+  keys[event.key] = true;
+
+  if (!rotateInterval) {
+    rotateInterval = setInterval(function() {
+      const cameraHeight = viewer.camera.positionCartographic.height;
+      const maxSpeed = Math.log(cameraHeight / 100000 + 1) / 1000;// Adjust this value for speed limit
+
+      verticalSpeed = Math.min(verticalSpeed + 0.0001, maxSpeed);
+      horizontalSpeed = Math.min(horizontalSpeed + 0.0001, maxSpeed);
+
+      if (keys.ArrowDown) { // Swapped 'ArrowUp' with 'ArrowDown'
+        viewer.camera.rotateUp(Cesium.Math.toRadians(verticalSpeed));
+      }
+
+      if (keys.ArrowUp) { // Swapped 'ArrowDown' with 'ArrowUp'
+        viewer.camera.rotateDown(Cesium.Math.toRadians(verticalSpeed));
+      }
+
+      if (keys.ArrowRight) {
+        viewer.camera.rotateRight(Cesium.Math.toRadians(horizontalSpeed));
+      }
+
+      if (keys.ArrowLeft) {
+        viewer.camera.rotateLeft(Cesium.Math.toRadians(horizontalSpeed));
+      }
+    }, 20);
+  }
+});
+
+document.addEventListener('keyup', function(event) {
+  keys[event.key] = false;
+  
+  if (!keys.ArrowUp && !keys.ArrowDown && !keys.ArrowRight && !keys.ArrowLeft) {
+    clearInterval(rotateInterval);
+    rotateInterval = undefined;
+    verticalSpeed = 0.001;  // Reset the speeds
+    horizontalSpeed = 0.001;
+  }
+});
+```
