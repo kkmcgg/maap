@@ -238,6 +238,103 @@ document.addEventListener('keyup', function(event) {
 
 ```
 
+5.[toggle motion with shift!](https://sandcastle.cesium.com/#c=pVZtb9s4DP4run5YHcxTku1b2xXXtR2aW4YNTbsvl2FQbSYRIkuGJCfLtv73oyTbsRMnGHYBAth8eR6SImklShpLVhzWoMlbImFNrsHwIqNfvCw6TfzrtZKWcQn6NCY/p5KQJ2ZgzDagP/NkCfqMzJgwEDvVHFSi0rZsoTJ4V1irZFNqEpDwEW33QSRb8TmzXMk7EPm+61Y/wgx0kbhHM5LccibE5gs3/ElA04NJnnmHptDyDATmdUYQA2LiZImGlNs64zOSqqTIQFqKGmbhVoB7i05TvjrtIcxz73wqpzJUkSZCJUtqFqoQ6ZXnBKyspzwnzi7xNV8wmYrdok+QAeQkZwncrpDjLhhFFTSTK2YcW+lNDdiRzAt75fOPZoUMD5la+SB74bQCpWYbpKuxMtCMzsG64t+zTe1Dc2W4Q3FEle9aaZF+LhVbFH+CdC7UE9AccSLkiFvKAOL+fBaVaaYww8qmUQu0V8ZaMSZMWzXXLF/wpEFcQlw3tHSmVeYEqGJyB/W8iSmUnHNbpLAF+sjsglp1A3MsvYm6WGnttoOG7fQHYKVXaBqH1j6Rmdg8qKgsBSEpGMtl2biN5H2ub3zqFV0dZlyHFpPhAH+9uIYrdIn1upQ9h6SesY/jQ334sMmBjm/fP3y7+fT4bnz77Xo8uv4QMhCAnaUstvlIWtArJs6DcAXa8oSJSQ6QYo0GdDAYlrqF0vyHm7BOrZvKWt6QjSTG5VoU5W8GAzdOTrWEjUHJz+fSFJNPFpB+aIinsh5ilqY+pzE3FvsTVxz6p2otcbXV8wOr7fDwGQnvONR8ZhG27tQG07/BxG2+r8j61wFV2UDLfY+wIfxREMDHiqPD1O2q+tB6v5FekR9K7kggJXL7bFHvd0542y6c1qIJnXwHfL6wexun2i6tCV5428a+ydj3qgP8UAk1j1qw/dDZA/KSDHvlWzlRu43nATIuo7bipe+5wTCuycIk7PdmDbCr6oaomsbVll5prdY32F7k169mv2wVdTe16xTq/phH7d1yz1IcfNPOpVfP8D73Y97J/Jgf5XWB/V/me39QXeRec5TfWxwIYOcUjoUwhll3BE5xNABn8Kf8IQAkeyAvXpDlbtoYT9QMqDI8UKY6zOZabK3D5tY4xh+S/m16b97J/uogfYfxoFket5/xwvOA+u1n859CYGFvsOpufU0AV0BqotZ9Kim0dh8i9Iu36HHz8rRFicojOYQQLl3uqWlW3QVpkacI8t5dKpxn1Ou00sj6A7wSP5yvB+7hJD65MHYj4LL63v7Ns1xpSwotIkr7FrIc6wym/1TglReXrjHVpeKi33S9wNsl4enb6cnODXx6QhLBjEHNrBBigkFMTy4v+mi/5yoUtqycf8KRFWzjzBbDy3EQUkov+vja7WmVEk9M7yD/Bw)
+![image](https://github.com/kevinkmcguigan/maap/assets/36888812/a77478ed-c919-4122-af21-3aca0bcfe41a)
+```
+const viewer = new Cesium.Viewer('cesiumContainer', {
+  baseLayerPicker: false,
+  geocoder: false,
+  homeButton: false,
+  sceneModePicker: false,
+  navigationHelpButton: false,
+  navigationInstructionsInitiallyVisible: false,
+  animation: false,
+  timeline: true, 
+  creditContainer: document.createElement('div'),
+});
+
+viewer.clock.shouldAnimate = false; 
+
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+handler.setInputAction(function(movement) {
+  const ray = viewer.camera.getPickRay(movement.position);
+  const worldPosition = viewer.scene.globe.pick(ray, viewer.scene);
+  
+  if(Cesium.defined(worldPosition)) {
+    const cartographicPosition = Cesium.Cartographic.fromCartesian(worldPosition);
+    const longitude = Cesium.Math.toDegrees(cartographicPosition.longitude);
+    const latitude = Cesium.Math.toDegrees(cartographicPosition.latitude);
+
+    viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 10000),
+      duration: 2,
+    });
+  }
+}, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+let rotateInterval;
+let verticalSpeed = 0.001;
+let horizontalSpeed = 0.001;
+let timeSpeed = 0;
+let timeIncrement = 300; 
+let keys = {};
+let latchedKeys = {};
+
+document.addEventListener('keydown', function(event) {
+  if (event.shiftKey) {
+    latchedKeys[event.code] = !latchedKeys[event.code];
+    keys[event.code] = false;
+  } else {
+    keys[event.code] = true;
+  }
+});
+
+document.addEventListener('keyup', function(event) {
+  keys[event.code] = false;
+});
+
+rotateInterval = setInterval(function() {
+  const cameraHeight = viewer.camera.positionCartographic.height;
+  const maxSpeed = Math.log(cameraHeight / 100000 + 1) / 1000;
+
+  verticalSpeed = Math.min(verticalSpeed + 0.0001, maxSpeed);
+  horizontalSpeed = Math.min(horizontalSpeed + 0.0001, maxSpeed);
+
+  if (keys.ArrowDown || latchedKeys.ArrowDown) {
+    viewer.camera.rotateUp(Cesium.Math.toRadians(verticalSpeed));
+  }
+
+  if (keys.ArrowUp || latchedKeys.ArrowUp) {
+    viewer.camera.rotateDown(Cesium.Math.toRadians(verticalSpeed));
+  }
+
+  if (keys.ArrowRight || latchedKeys.ArrowRight) {
+    viewer.camera.rotateRight(Cesium.Math.toRadians(horizontalSpeed));
+  }
+
+  if (keys.ArrowLeft || latchedKeys.ArrowLeft) {
+    viewer.camera.rotateLeft(Cesium.Math.toRadians(horizontalSpeed));
+  }
+
+  if ((keys.KeyT && keys.ArrowRight) || (latchedKeys.KeyT && latchedKeys.ArrowRight)) {
+    timeSpeed = timeIncrement;
+  } else if ((keys.KeyT && keys.ArrowLeft) || (latchedKeys.KeyT && latchedKeys.ArrowLeft)) {
+    timeSpeed = -timeIncrement;
+  } else {
+    timeSpeed = 0;
+  }
+
+  let newTime = Cesium.JulianDate.addSeconds(viewer.clock.currentTime, timeSpeed, new Cesium.JulianDate());
+  viewer.clock.currentTime = newTime;
+  viewer.timeline.updateFromClock();
+  viewer.timeline.resize();
+}, 20);
+```
+
+
+
+
+
    
 # Chats
 
