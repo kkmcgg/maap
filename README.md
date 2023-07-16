@@ -141,3 +141,7 @@ document.addEventListener('keyup', function(event) {
   }
 });
 ```
+
+# Chats
+
+https://chat.openai.com/share/1c577732-80c6-4209-8caa-1f5d2315b802
