@@ -19,7 +19,7 @@ jobs:
       - name: Authenticate with GEE
         run: |
           echo ${{ secrets.API_KEY }} | base64 --decode > $HOME/.config/earthengine/service_account.json
-          npm install -g @google-earth-engine/cli
+          npm install -g @google-earth-engine
           earthengine authenticate
 
       - name: Deploy to GitHub Pages
