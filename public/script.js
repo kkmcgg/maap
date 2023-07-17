@@ -1,3 +1,16 @@
+// Obtain access token after successful sign-in
+const authResponse = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
+const accessToken = authResponse.access_token;
+
+// Authenticate Earth Engine API with the access token
+ee.data.authenticateViaOauth(accessToken);
+
+// Make an Earth Engine API request
+ee.Image('COPERNICUS/S2_SR/20210701T045621_20210701T050249_T44PVS').getInfo(function(imageInfo) {
+  console.log(imageInfo);
+});
+
+
 // GEE code example
 var image = ee.Image('COPERNICUS/S2_SR/20210701T045621_20210701T050249_T44PVS');
 
