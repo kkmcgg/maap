@@ -12,6 +12,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Create GEE directory
+        run: |
+          mkdir -p $HOME/.config/earthengine
+
       - name: Authenticate with GEE
         run: |
           echo ${{ secrets.API_KEY }} | base64 --decode > $HOME/.config/earthengine/service_account.json
