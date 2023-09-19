@@ -1,6 +1,9 @@
 # maap
 mapping on the internet
 
+## WMS Sources
+1. GIBS https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/
+
 # Cesium Sandcastle Tutorial
 
 1. [Make a clean simple globe](https://sandcastle.cesium.com/#c=lVNNi9swEP0rgy/JQpDpdesNpUuhC1taaNmTL4o8iYfqI0jjhLT0v3ckr7cmLcXrk+bNe29mrFFdw7eeEpzJWjARNSNo8HiGe0w0ODgRnjEC+cTaG1StN0HOE34346qngq1XpoT3wbMmj3G1gZ+tB6jntTpKemcRuEfY6YRg9UX8jmS+Y1SZntHHDH4p2C3stU24+a/TAYMJ3bPBFCxS9sFJIwNz8EWc4/clXCRPBj2Ck3LzEQr6ScBXjOD1iQ6aKXjo0R7nPf1JfZTMK7qbeeaLjIPJ5yQBMWlrL5D6cL4u8jCjPkzMJ0oktovKak9urGqmXRAS9yXJ5NAKVIq+MBf5TlLQPO5PkD/hIOyfryIijrNMxEWuIuuIM3SUXSz6EXpZ5FvoghkcelbjU/lgMUfrVUen1Y3Y/7p52/pqUzWJLxa32SN/78gdQ2QYol0rVTM6KcGY6t0geyFuKWVhpjb1XNqIMVB311ZXb6qtwFidkmT2g7Vf6Qe21baphf+X1AbdkT98PmGUwTKtf7N9HEGlVFNL+G8lh2B3Ol45/wY)
@@ -331,6 +334,7 @@ rotateInterval = setInterval(function() {
 }, 20);
 ```
 # OpenLayers
+
 [Blending two Gibs layers](https://jsfiddle.net/)
 
 ![image](https://github.com/kkmcgg/maap/assets/36888812/835493aa-279f-453f-a6f7-f03555a32be9)
@@ -405,6 +409,166 @@ rotateInterval = setInterval(function() {
 </html>
 ```
 
+[Basic WebGL Points](https://jsfiddle.net/)
+
+![image](https://github.com/kkmcgg/maap/assets/36888812/5197beb6-71a7-45d3-99c7-f30c74f81d98)
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLayers WebGL Shader Example</title>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.5.0/css/ol.css">
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v6.5.0/build/ol.js"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    window.onload = function () {
+        const source = new ol.source.Vector({
+            features: [new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([0, 0])))],
+        });
+
+        const layer = new ol.layer.WebGLPoints({
+            source: source,
+            style: {
+                symbol: {
+                    symbolType: 'circle',
+                    size: 40,
+                    color: '#FF5733',
+                    opacity: 0.5,
+                    src: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP/AOW3MEoAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAoSURBVAjXY2AAAAACAAHiIbwzAAAAAElFTkSuQmCC'
+                }
+            }
+        });
+
+        const map = new ol.Map({
+            target: 'map',
+            layers: [layer],
+            view: new ol.View({
+                center: [0, 0],
+                zoom: 2,
+            })
+        });
+    };
+</script>
+</body>
+</html>
+```
+
+
+
+# MapLibre
+
+[Basic WMS display](https://jsfiddle.net/)
+
+![image](https://github.com/kkmcgg/maap/assets/36888812/883c9c8f-28b6-48ec-8254-773e4f624699)
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapLibre GL JS with OSM</title>
+    <script src='https://unpkg.com/maplibre-gl@2.0.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@2.0.0/dist/maplibre-gl.css' rel='stylesheet' />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+<div id='map'></div>
+
+<script>
+    var map = new maplibregl.Map({
+        container: 'map',
+        style: {
+            version: 8,
+            sources: {
+                'raster-tiles': {
+                    type: 'raster',
+                    tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', 'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tileSize: 256
+                }
+            },
+            layers: [{
+                id: 'osm-tiles',
+                type: 'raster',
+                source: 'raster-tiles',
+                minzoom: 0,
+                maxzoom: 22
+            }]
+        },
+        center: [-63.6465, 44.6820], // Coordinates for Nova Scotia
+        zoom: 6
+    });
+</script>
+
+</body>
+</html>
+```
+
+[Basic GIBS WMS](https://jsfiddle.net/)
+
+![image](https://github.com/kkmcgg/maap/assets/36888812/46ba99cf-716c-49b7-87ba-5f9ea629308e)
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapLibre GL JS with OSM</title>
+    <script src='https://unpkg.com/maplibre-gl@2.0.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@2.0.0/dist/maplibre-gl.css' rel='stylesheet' />
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+<div id='map'></div>
+
+<script>
+    var map = new maplibregl.Map({
+        container: 'map',
+        style: {
+            version: 8,
+            sources: {
+                'raster-tiles': {
+                    type: 'raster',
+                                tiles: ['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/2023-06-21/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg'],
+                    //tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', 'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    tileSize: 256
+                }
+            },
+            layers: [{
+                id: 'osm-tiles',
+                type: 'raster',
+                source: 'raster-tiles',
+                minzoom: 0,
+                maxzoom: 22
+            }]
+        },
+        center: [-63.6465, 44.6820], // Coordinates for Nova Scotia
+        zoom: 6
+    });
+</script>
+</body>
+</html>
+```
+
 # Chats
 
 https://chat.openai.com/share/9883ee21-3d7e-4256-a86a-34e5e47b4101
+https://chat.openai.com/share/53ac4e00-b91e-4083-a905-e4aae61a98c2
