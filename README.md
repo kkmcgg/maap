@@ -330,6 +330,80 @@ rotateInterval = setInterval(function() {
   viewer.timeline.resize();
 }, 20);
 ```
+# OpenLayers
+[Blending two Gibs layers](https://jsfiddle.net/)
+
+![image](https://github.com/kkmcgg/maap/assets/36888812/835493aa-279f-453f-a6f7-f03555a32be9)
+
+
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIBS Viewer with OpenLayers</title>
+    <style>
+        html, body, #map {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: grey;
+        }
+                #map canvas {
+            mix-blend-mode: darken;
+        }
+        
+    </style>
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css" type="text/css">
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+</head>
+<body>
+<div id="map"></div>
+<script>
+    window.onload = function() {
+        var map = new ol.Map({
+          view: new ol.View({
+              extent: [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
+              center: ol.proj.fromLonLat([-63.6465, 44.6820]), // Approximate center of Nova Scotia
+              zoom: 6,  // Adjusted to zoom in closer to Nova Scotia
+              maxZoom: 9
+          }),
+            target: 'map',
+            renderer: ['canvas', 'dom']
+        });
+
+        var source = new ol.source.XYZ({
+            url: 'https://gibs-{a-c}.earthdata.nasa.gov/wmts/epsg3857/best/' +
+                'MODIS_Terra_CorrectedReflectance_TrueColor/default/2023-06-20/' +
+                'GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg'
+        });
+        
+        var source2 = new ol.source.XYZ({
+            url: 'https://gibs-{a-c}.earthdata.nasa.gov/wmts/epsg3857/best/' +
+                'MODIS_Terra_CorrectedReflectance_TrueColor/default/2023-06-21/' +
+                'GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg'
+        });
+        
+         var source3 = new ol.source.XYZ({
+            url: 'https://gibs-{a-c}.earthdata.nasa.gov/wmts/epsg3857/best/' +
+                'MODIS_Terra_CorrectedReflectance_TrueColor/default/2023-06-22/' +
+                'GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg'
+        });
+
+        var layer = new ol.layer.Tile({ source: source , opacity:.2});
+        var layer2 = new ol.layer.Tile({ source: source2 , opacity:.2});
+        var layer3 = new ol.layer.Tile({ source: source3 , opacity:.2});
+
+       map.addLayer(layer2);
+       map.addLayer(layer);
+       map.addLayer(layer3);
+    };
+</script>
+</body>
+</html>
+```
 
 # Chats
 
