@@ -18,8 +18,11 @@ jobs:
 
       - name: Authenticate with GEE
         run: |
-            npm install @google/earthengine
-            earthengine authenticate --service_account_key="${{ secrets.API_KEY }}"
+          npm install @google/earthengine-api
+          echo ${{ secrets.API_KEY }} > $HOME/.config/earthengine/credentials
+
+      - name: Build
+        run: npm install && npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
